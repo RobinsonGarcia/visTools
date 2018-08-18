@@ -252,7 +252,7 @@ def RANSAC(p,normals,d=25,s=100,N=1000,T=200):
             center.append(interect)
             center_bin.append(cart)
 
-            for r in np.arange(20,150,10):
+            for r in np.arange(50,150,10):
 
                 ri_sq = np.sum((np.array(p).T - center_bin[k])**2,axis=1)
                 di = np.abs(ri_sq - r**2)
