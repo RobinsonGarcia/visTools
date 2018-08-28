@@ -597,7 +597,7 @@ def Expand(im,k):
 # In[58]:
 
 
-def Reduce(im,k):
+def ce(im,k):
     for j in range(k):
         H,W = im.shape
 
@@ -617,7 +617,7 @@ def Reduce(im,k):
 # H,W = im1.shape
 #
 # if (H>1000)|(W>1000):
-#     im = Reduce(im,4)
+#     im = ce(im,4)
 # Red=1
 # std=1
 # s=5
@@ -637,7 +637,7 @@ def SIFT(im,s=4,N=3,std=0.6,plot=False,display=False,shrink=2):
     H,W = im.shape
     im=im/255
     if (H>1000)|(W>1000):
-        im = Reduce(im,shrink)
+        im = ce(im,shrink)
 
     H,W = im.shape
 
