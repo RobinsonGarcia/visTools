@@ -1059,9 +1059,10 @@ def match_kps(sift1,sift2):
 
         plt.show()
 
-    H,idx = RANSAC(sift1.img1_,sift2.img1_,pairs,sift1.min_pts,type_=sift1.type_,p=0.10,P=.98,th=sift1.RANSAC_th)
+    if sift1.type_!=None:
+        H,idx = RANSAC(sift1.img1_,sift2.img1_,pairs,sift1.min_pts,type_=sift1.type_,p=sift1.RANSAC_p,P=.98,th=sift1.RANSAC_th)
 
-    pairs = (pairs[0][idx],pairs[1][idx])
+        pairs = (pairs[0][idx],pairs[1][idx])
 
     idx1 = np.array(idx1)
     idx2 = np.array(idx2)
@@ -1074,9 +1075,9 @@ class sift:
                              peak_th=0.03,edge_th=10,
                              ilum_sat=0.2,num='max',
                              Red=3,crt=0.8,
-                             type_='homography',
+                             type_=None,
                              min_pts=4,
-                             nn_plot=False,debug=False,RANSAC_th=5):
+                             nn_plot=False,debug=False,RANSAC_th=5,RANSAC_p=.2):
         self.img1_ = np.mean(plt.imread(img1_),axis=2)
         self.img1_ = Reduce(self.img1_,Red)
         self.N = N
@@ -1093,10 +1094,29 @@ class sift:
         self.nn_plot = nn_plot
         self.debug = debug
         self.RANSAC_th = RANSAC_th
+        self.RANSAC_p = RANSAC_p
         self.get_kps()
 
     def get_kps(self):
         self.kp,self.fv = SIFT(self.img1_,N=self.N,s=self.s,sig=self.sig,ilum_sat=self.ilum_sat,peak_th=self.peak_th,edge_th=self.edge_th,debug=self.debug)
+
+    def plot(self,mode='kp'):
+        plt.imshow(self.img1_,**{'cmap':'gray'})
+
+        if mode=='kp':
+            plt.scatter(self.kp[:,1],self.kp[:,0],c='r',s=1)
+            num = self.kp.shape[0]
+            for i in range(num):
+                plt.text(self.kp[i,1],self.kp[i,0],str(i),withdash=False,**{'color':'red'})
+            plt.show()
+
+        elif mode=='best_kp':
+            plt.scatter(self.best_kp[:,1],self.best_kp[:,0],c='r',s=1)
+            num = self.best_kp.shape[0]
+            for i in range(num):
+                plt.text(self.best_kp[i,1],self.best_kp[i,0],str(i),withdash=False,**{'color':'red'})
+            plt.show()
+
 
     def update2bestkp(self,best_kp,best_fv):
         self.best_kp = best_kp
