@@ -215,8 +215,11 @@ class Harris_detector:
 
             xk = kmeans.cluster_centers_
 
-        plt.scatter(xk[:,1],xk[:,0],c='r',s=10)
+        plt.scatter(xk[:,1],xk[:,0],c='r',s=1)
         plt.imshow(self.im,**{'cmap':'gray'})
+        for j in range(xk.shape[0]):
+            plt.text(xk[j,1],xk[j,0],str(j),withdash=False,**{'color':'red','size':7})
+
         plt.show()
         self.xk = xk
 

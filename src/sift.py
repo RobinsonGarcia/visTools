@@ -690,15 +690,10 @@ def affine_project(pairs,best_fit,w):
 # # Homography LS
 
 # In[24]:
-class HartleysNorm:
-    def __init__(self,pairs):
-        self.pairs=pairs
-        self.Tl = get_T(hmg(pairs[0][:,:2]))
-        self.Tr = get_T(hmg(pairs[1][:,:2]))
-        self.norm_pairs = hmg(pairs[0][:,:2]).dot(self.Tl),hmg(pairs[1][:,:2]).dot(self.Tr)
-
-    def denormalize(self,F):
-        return ((self.Tr.T).dot(F)).dot(self.Tl)
+def hmg(x):
+    n = x.shape[0]
+    ones = np.ones(n)
+    return np.vstack((x.T,ones)).T
 
 def get_T(data):
     ml = data
@@ -711,6 +706,26 @@ def get_T(data):
 
     return np.array([[1/sl,0,(-1/sl)*ml_[0]],[0,1/sl,(-1/sl)*ml_[1]],[0,0,1]])
 
+class HartleysNorm:
+    def __init__(self,pairs):
+        self.pairs=pairs
+        self.Tl = self.get_T(hmg(pairs[0][:,:2]))
+        self.Tr = self.get_T(hmg(pairs[1][:,:2]))
+        self.norm_pairs = hmg(pairs[0][:,:2]).dot(self.Tl),hmg(pairs[1][:,:2]).dot(self.Tr)
+
+    def denormalize(self,F):
+        return ((self.Tl.T).dot(F)).dot(self.Tr)
+
+    def get_T(self,data):
+        ml = data
+
+        n = data.shape[0]
+
+        ml_ = np.mean(ml,axis=0)
+
+        sl = np.sqrt(np.sum((ml - ml_)**2)/(2*n))
+
+        return np.array([[1/sl,0,(-1/sl)*ml_[0]],[0,1/sl,(-1/sl)*ml_[1]],[0,0,1]])
 
 def build_A(num, pairs,i):
 
@@ -739,14 +754,11 @@ def Homography(pairs,num=4):
 
     i = np.random.choice(idx,num)
 
-
-
     A = build_A(num,pairs,i)
 
     U,S,V = np.linalg.svd(A)
 
     h = V[-1]
-
 
     e = homography_error(pairs,h)
 
@@ -770,7 +782,7 @@ def homography_error(pairs,h):
                     where=x1_[2,:]!=0)
 
 
-    x2_ = (x2.T.dot(np.linalg.inv(H))).T
+    x2_ = (H.T).dot(x2)
     x2_ = np.divide(x2_[:2,:],x2_[2,:],out=np.zeros_like(x2_[:2,:]),
                     where=x2_[2,:]!=0)
 
@@ -809,55 +821,14 @@ def nearest_neighboor(fk1,xk1,fk2,xk2,crt=0.8):
     return pairs,idx
 
 
-# # Random Sample Consensus - RANSAC
-
-# Likelihood that S trials will fail:
-# $$1-P=(1-p^k)^s$$
-#
-# For a given probability of having inliers, the required minimum number of trials S is:
-# $$S = \frac{log(1-P)}{log(1-p^k)}$$
-
-# In[27]:
-
-def LevenbergMarquardt(num,pairs,i):
-
-    A = np.vstack((pairs[1][i][:,:2].T,np.ones_like(pairs[1][i][:,2]))).T
-    y = np.vstack((pairs[0][i][:,:2].T,np.ones_like(pairs[1][i][:,2]))).T
-
-    AtA = A.T.dot(A)
-    w = -1*(np.linalg.inv(AtA).dot(A.T.dot(y)))
-    e0 = np.sum(homography_error(pairs,w))
-
-
-    I = np.diag(np.ones(AtA.shape[0]))
-    lamb = 1e-3*np.mean(np.diag(AtA))
-
-    w0=w
-    for i in range(30):
-        w = -1*(np.linalg.inv(AtA+lamb*I).dot(A.T.dot(y)))
-        e = np.sum(homography_error(pairs,w))
-
-        if e<e0:
-            lamb/=10
-        else:
-            lamb*=10
-        e0=e
-        d = w0-w
-        w0=w
-        print(np.sum(d.dot(d)))
-
-    return w,homography_error(pairs,w)
-
-
-
 
 '''
 p - probability of being an inlier
 k - number of samples
 S - number of required trials
 '''
-def RANSAC(im1,im2,pairs,min_pts=4,p=0.1,P=.99,th=100,type_='affine'):
-    print("Starting RANSAC:")
+def RANSAC(im1,im2,pairs,min_pts=4,p=0.1,P=.99,th=100,type_='affine',diag=False):
+    if diag==True:print("Starting RANSAC:")
     #pairs = (pairs[1],pairs[0])
     S = np.round(np.log(1-P)/(np.log(1-p**min_pts))).astype(int)
 
@@ -868,13 +839,14 @@ def RANSAC(im1,im2,pairs,min_pts=4,p=0.1,P=.99,th=100,type_='affine'):
         if p>0.9:
             break
 
-        try:
-            if type_=='affine':
-                w,e,x1,x2 = Affine(pairs,min_pts)
-            else:
-                w,e,x1,x2 = Homography(pairs,min_pts)
-        except:
-            continue
+        #try:
+        if type_=='affine':
+            w,e,x1,x2 = Affine(pairs,min_pts)
+        else:
+            w,e,x1,x2 = Homography(pairs,min_pts)
+
+        #except:
+        #    continue
 
         inliers = np.sum(e<th**2)
         #print(e.mean())
@@ -888,8 +860,8 @@ def RANSAC(im1,im2,pairs,min_pts=4,p=0.1,P=.99,th=100,type_='affine'):
             idx = e<th**2
             best_fit = inliers
             p = best_fit/pairs[0].shape[0]
-            print('Iteration: {}'.format(i))
-            print(best_e,p,best_fit,pairs[0].shape[0])
+            if diag==True:print('Iteration: {}'.format(i))
+            if diag==True:print(best_e,p,best_fit,pairs[0].shape[0])
 
 
             S += np.round(np.log(1-P)/(np.log(1-p**min_pts))).astype(int)
@@ -912,28 +884,28 @@ def RANSAC(im1,im2,pairs,min_pts=4,p=0.1,P=.99,th=100,type_='affine'):
     best_x1 = x1
     best_x2 = x2
 
+    if diag==True:
+        print("Ransac affine/homography best matches:")
 
-    print("Ransac affine/homography best matches:")
+        plt.imshow(im1,**{'cmap':'gray'})
 
-    plt.imshow(im1,**{'cmap':'gray'})
+        plt.scatter(best_x1[:,1],best_x1[:,0],c='red',s=10)
 
-    plt.scatter(best_x1[:,1],best_x1[:,0],c='red',s=10)
-
-    for i in range(best_x1.shape[0]):
-        plt.text(best_x1[i,1],best_x1[i,0],str(i),withdash=False,**{'color':'red'})
-
-
-    plt.show()
-
-    plt.imshow(im2,**{'cmap':'gray'})
-    plt.scatter(best_x2[:,1],best_x2[:,0],c='red',s=10)
+        for i in range(best_x1.shape[0]):
+            plt.text(best_x1[i,1],best_x1[i,0],str(i),withdash=False,**{'color':'red'})
 
 
-    for i in range(best_x2.shape[0]):
-        plt.text(best_x2[i,1],best_x2[i,0],str(i),withdash=False,**{'color':'red'})
+        plt.show()
 
-    plt.show()
-    print("RANSAC number of inliers: {}".format(best_fit))
+        plt.imshow(im2,**{'cmap':'gray'})
+        plt.scatter(best_x2[:,1],best_x2[:,0],c='red',s=10)
+
+
+        for i in range(best_x2.shape[0]):
+            plt.text(best_x2[i,1],best_x2[i,0],str(i),withdash=False,**{'color':'red'})
+
+        plt.show()
+        print("RANSAC number of inliers: {}".format(best_fit))
     #except:
     #print("didn't converge")
 
@@ -1029,7 +1001,6 @@ def match_kps(sift1,sift2):
     xk2 = sift2.kp
 
     pairs,idx,idx1,idx2 = nearest_neighboor2(fk1,xk1,fk2,xk2,sift1.crt)
-    print(pairs[0].shape)
 
     fk1 = fk1[idx1,:]
     fk2 = fk2[idx2,:]
@@ -1068,7 +1039,7 @@ def match_kps(sift1,sift2):
     idx2 = np.array(idx2)
     return fk1[idx],fk2[idx],xk1[idx],xk2[idx],pairs,idx1[idx],idx2[idx]
 
-
+import time
 class sift:
     def __init__(self,img1_='img/house/sfm/1.jpg',
                              N=2,s=3,sig=1.6,
@@ -1095,7 +1066,10 @@ class sift:
         self.debug = debug
         self.RANSAC_th = RANSAC_th
         self.RANSAC_p = RANSAC_p
+        start = time.time()
         self.get_kps()
+        end = time.time()
+        print('time to get kps: {}'.format(end-start))
 
     def get_kps(self):
         self.kp,self.fv = SIFT(self.img1_,N=self.N,s=self.s,sig=self.sig,ilum_sat=self.ilum_sat,peak_th=self.peak_th,edge_th=self.edge_th,debug=self.debug)
@@ -1123,8 +1097,10 @@ class sift:
         self.best_fv = best_fv
 
     def __eq__(self,other):
-
+        start = time.time()
         fk1,fk2,xk1,xk2,pairs,idx1,idx2 = match_kps(self,other)
+        end = time.time()
+        print("time to match: {}".format(end-start))
         self.update2bestkp(xk1,fk1)
         other.update2bestkp(xk2,fk2)
         pass
