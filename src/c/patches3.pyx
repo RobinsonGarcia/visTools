@@ -9,6 +9,7 @@ cpdef get_patches3(np.ndarray[np.float64_t,ndim=3] D, np.ndarray[np.float_t,ndim
     cdef int N = D.shape[0]
     cdef int H = D.shape[1]
     cdef int W = D.shape[2]
+    cdef f
 
 
     cdef int h_pad = int((H * (stride - 1) - stride + h) / 2)

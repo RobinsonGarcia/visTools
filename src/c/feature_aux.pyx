@@ -7,10 +7,12 @@ cimport cython
 @cython.boundscheck(False)
 @cython.wraparound(False)
 cdef GaussianFilter(int w,int h,float sigma):
+    cdef int i,j
     cdef int m = (w-1)/2
     cdef int n = (h-1)/2
     cdef np.ndarray[np.float64_t,ndim=2] G = np.empty((h,w))
     cdef double Gsum = 0.0
+
     for i in range(w):
         for j in range(h):
             G[j,i] = math.e**(-1*((i-m)**2+(j-n)**2)/(2*sigma**2))
@@ -18,6 +20,8 @@ cdef GaussianFilter(int w,int h,float sigma):
 
     return G/Gsum
 
+@cython.boundscheck(False)
+@cython.wraparound(False)
 cdef split_matrix(A):
     x = (np.tile(np.tile(np.arange(4),16) + np.repeat(np.arange(0,14,4),16),4).reshape((4,-1)).T).astype(int)
     y = (np.tile(np.repeat(np.arange(0,14,4),4),4)[:,np.newaxis]+np.arange(4)).astype(int)
@@ -26,13 +30,14 @@ cdef split_matrix(A):
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cpdef build_fk(int N, np.ndarray[np.float64_t,ndim=2] xk,np.ndarray[np.int_t,ndim=3] hist_patches,np.ndarray[np.float_t,ndim=3]Imag,double ilum_sat):
+cpdef build_fk(int N, np.ndarray[np.float64_t,ndim=2] xk,np.ndarray[np.int_t,ndim=3] hist_patches,np.ndarray[np.float_t,ndim=3] Imag,double ilum_sat):
 
   cdef np.ndarray[np.float64_t,ndim=1] fk1
   cdef np.ndarray[np.float64_t,ndim=2] fk = np.zeros((N,8*16)).astype(np.float)
   cdef np.ndarray[np.float64_t,ndim=2] sig_
   cdef np.ndarray[np.float64_t,ndim=1] contrib
   cdef np.ndarray[np.float64_t,ndim=3] sig
+  cdef int kp,i,j
 
   for kp in range(N):
       fk1=np.empty(0).astype(np.float)

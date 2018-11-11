@@ -1,0 +1,4 @@
+Lecture material:
+
+Cornell - Introduction to Computer Vision
+http://www.cs.cornell.edu/courses/cs4670/2018sp/
