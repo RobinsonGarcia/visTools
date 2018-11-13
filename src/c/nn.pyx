@@ -51,7 +51,7 @@ double crt=0.8):
     id = np.argsort(dists[i,:])[:2]
 
 
-    phi_  = np.sum((-fk1[id[0]] + fk2[i]))/np.sum((-fk1[id[1]] + fk2[i]))
+    phi_  = np.sum((-fk1[id[0]] + fk2[i])**2)/np.sum((-fk1[id[1]] + fk2[i])**2)
     if phi_ < crt:
       idx1 = np.append(idx1,id[0])
       idx2 = np.append(idx2,i)
