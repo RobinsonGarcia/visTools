@@ -14,7 +14,7 @@ xks:
 '''
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef get_descriptors_idx(xk,block_size=16,cell_size=4,nBins=8):
+cdef get_descriptors_idx(np.ndarray[np.float64_t,ndim=2] xk,int block_size=16,int cell_size=4,int nBins=8):
 
 
     cdef int nKps = xk.shape[0] #number of keypoints
