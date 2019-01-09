@@ -1,0 +1,51 @@
+visTools
+	- Core functions
+		- Operations
+			- Plot and draw, Homogeneous coordinates, components classes (kps,lines,circles etc.)
+			- Conv2d
+				- on an image
+				- on a stack/octave
+			- Reduce/Expand
+				- single image
+				- stack of images
+			- Normalize an image (0-1)
+			- Non-maximum supression
+			- Extract image patches
+			- Recursive connected components
+			- Random sample consensus (RANSAC)
+			- Nearest Neighboors
+		- Image filtering/kernels
+			- Gaussian
+			- Gradient
+				- Gaussian
+				- laplacian
+				- finite differences
+				- sobel
+				- roberts
+				- Prewitt
+			- Gaussian/Gradient
+			- Mean
+			- Median
+	- Image filterring
+		- applies kernels on image or stack of images
+	- Feature Extraction
+		- edges: extracts edgels using canny edge algorithm
+		- corners: extract corners using Harry Corner detector
+	- Descriptors
+		- sift
+		- correspondance matchinh
+	- Fitting: class/script that fits lines/circles/elipses with and without noise.
+		- lines
+		- circles
+		- elipse
+	- Camera Geometry
+		- Homography
+		- Calibration
+		- Fundamental-Matrix
+		- Stereo maps
+	- Classic Segmentation
+		- Segments pixels into groups using different techniques such as kmeans, EM 
+	- DeepLearning
+		- Classification
+		- Segmentation
+		- Object Detection
