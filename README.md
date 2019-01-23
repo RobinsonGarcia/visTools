@@ -3,27 +3,32 @@ visTools
 		- Operations
 			- Plot and draw, Homogeneous coordinates, components classes (kps,lines,circles etc.)
 			- Conv2d
-				- on an image
-				- on a stack/octave
+				- on an image 
+				- on a stack/octave OK
 			- Reduce/Expand
-				- single image
-				- stack of images
+				- Reduce single image OK
+				- Reduce stack of images OK
+				- Expand single image
+
+				- Expand stack of images
+			- Non-maximum suprresion
+			- Image gradient module and angle
 			- Normalize an image (0-1)
 			- Non-maximum supression
 			- Extract image patches
 			- Recursive connected components
-			- Random sample consensus (RANSAC)
+cd - Random sample consensus (RANSAC)
 			- Nearest Neighboors
 		- Image filtering/kernels
-			- Gaussian
+			- Gaussian OK
 			- Gradient
-				- Gaussian
-				- laplacian
-				- finite differences
-				- sobel
-				- roberts
-				- Prewitt
-			- Gaussian/Gradient
+				- Gaussian OK
+				- laplacian OK
+				- finite differences OK
+				- sobel OK
+				- roberts 
+				- Prewitt 
+			- Gaussian/Gradien OKt
 			- Mean
 			- Median
 	- Image filterring
