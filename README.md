@@ -31,11 +31,14 @@ cd - Random sample consensus (RANSAC)
 			- Gaussian/Gradien OKt
 			- Mean
 			- Median
+		- Feature Extraction
+			- edges: extracts edgels using canny edge algorithm
+			- corners: extract corners using Harry Corner detector
+
 	- Image filterring
 		- applies kernels on image or stack of images
-	- Feature Extraction
-		- edges: extracts edgels using canny edge algorithm
-		- corners: extract corners using Harry Corner detector
+	- Feature Extraction (corners,edges,lines,circles)
+
 	- Descriptors
 		- sift
 		- correspondance matchinh

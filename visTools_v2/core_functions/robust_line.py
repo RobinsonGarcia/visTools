@@ -389,7 +389,7 @@ class RobustFittingLine:
 
             '''Plot line after IRLS'''
             xrange,y = plot_line(self.Im.mask,n,c,self.random_lines.kps_bkup,
-                                 line['inliers'][0],extend=True)
+                                 line['inliers'][0],extend=False)
             plt.scatter(xrange,y,s=1,c=color)
             
             x,y = line['inliers']

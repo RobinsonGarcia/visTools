@@ -29,7 +29,7 @@ class img_grad:
         self.im = im
         self.get_grad()
 
-    def get_grad(self,sharp=False,blur=True,h=5,w=5,sig=1,th=0.03,Red=0,g=kernel().sobel):
+    def get_grad(self,sharp=False,blur=True,h=3,w=3,sig=0.5,th=0.03,Red=0,g=kernel().sobel):
 
         im = norm(Reduce_stack(self.im,Red))
 
@@ -61,19 +61,19 @@ class img_grad:
         mask = self.mask
         n = self.n
         h,w = mask.shape
-        x,y = np.nonzero(mask)
+        x,y = np.nonzero(mask) #y,cols - x, rows
         idx = np.arange(x.shape[0])
         idx = np.random.choice(idx,10)
         x = x[idx]
         y = y[idx]
         nx,ny = n[:,x,y]
         plt.figure(figsize=figsize)
-        plt.imshow(mask,**{'cmap':'gray'})#,extent=[0,w,0,h])
-        plt.quiver(y,x,ny,nx,color='r',scale_units='xy', angles='xy', scale=None,width=0.01)
+        plt.imshow(self.S,**{'cmap':'gray'})#,extent=[0,w,0,h])
+        plt.quiver(y,x,nx,ny,color='r',scale_units='xy', angles='xy', scale=None,width=0.01)
         if tan ==True:
             n = np.array([-self.n[1],self.n[0]])
             nx,ny = n[:,x,y]
-            plt.quiver(y,x,ny,nx,color='g',scale_units='xy', angles='xy', scale=None,width=0.01)
+            plt.quiver(y,x,nx,ny,color='g',scale_units='xy', angles='xy', scale=None,width=0.01)
 
     def get_tan(self):
         return np.array([-self.n[1],self.n[0]])

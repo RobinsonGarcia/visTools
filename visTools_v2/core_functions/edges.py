@@ -38,21 +38,29 @@ class canny(img_grad):
             sig=self.sig,
             sharp=self.sharp,g=self.g,
             Red=self.Red)
-        self.non_sup_mask = self.mask
+        self.non_sup_S = self.S.copy()
         if nonMaxSup: self.nonMaxSup()
 
     def plot(self):
         #plt.imshow(self.non_sup_mask,**{'cmap':'gray'})
         #plt.show()
+        plt.title("non-sup S")
+        plt.imshow(self.non_sup_S,**{'cmap':'gray'})
+        plt.show()
+        plt.title("sup S")
+        plt.imshow(self.S,**{'cmap':'gray'})
+        plt.show()
+        plt.title("mask")
         plt.imshow(self.mask,**{'cmap':'gray'})
 
 
-    def nonMaxSup(self):
-        n = self.n
-        S = self.S
-        S_padded = np.pad(S,((1,1),(1,1)),'constant')
-        self.kp = kp = np.argwhere(S)
 
+
+    def nonMaxSup(self):
+        n = self.n.copy()
+        S = self.S.copy()
+        S_padded = np.pad(S,((1,1),(1,1)),'edge')
+        self.kp = kp = np.argwhere(S)
 
         n0 = n[:,kp[:,0],kp[:,1]].T
 
@@ -68,4 +76,5 @@ class canny(img_grad):
         new_S = np.zeros_like(S)
         new_S[maxs[:,0],maxs[:,1]]=1
         self.mask = new_S
-
+        self.S*=new_S
+        self.n*=new_S
